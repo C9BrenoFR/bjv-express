@@ -15,9 +15,9 @@ return new class extends Migration {
             $table->string('country');
             $table->string('state');
             $table->string('city');
-            $table->string('distric');
+            $table->string('neighborhood');
             $table->string('street');
-            $table->string('nunmber');
+            $table->string('number');
             $table->string('complement');
             $table->timestamps();
         });
