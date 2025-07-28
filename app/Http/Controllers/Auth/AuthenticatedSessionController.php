@@ -33,7 +33,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (\Auth::user()->role == \Roles::DELIVER)
+            return redirect()->route('dashboard.deliver');
+
+        if (\Auth::user()->role == \Roles::OPERATOR)
+            return redirect()->route('dashboard.operator');
+
+        return redirect()->route('dashboard');
     }
 
     /**
