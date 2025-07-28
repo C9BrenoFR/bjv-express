@@ -14,4 +14,14 @@ class Package extends Model
         'weight',
         'address_id',
     ];
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function deliver()
+    {
+        return $this->hasOne(Delivery::class);
+    }
 }

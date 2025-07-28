@@ -16,4 +16,19 @@ class Delivery extends Model
         'last_to_update',
         'unit_id',
     ];
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    public function lastToUpdate()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

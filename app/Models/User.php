@@ -45,4 +45,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+
+    public function lastThatUpadate()
+    {
+        return $this->hasMany(Delivery::class);
+    }
 }

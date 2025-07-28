@@ -13,4 +13,19 @@ class Unit extends Model
         "title",
         "address_id"
     ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function deliveries()
+    {
+        return $this->hasMany(Delivery::class);
+    }
+
+    public function address()
+    {
+        return $this->belongsTo(Address::class);
+    }
 }
