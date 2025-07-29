@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PackageController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\DeliverMiddleware;
 use App\Http\Middleware\OperatorMiddleware;
@@ -14,6 +15,8 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+
+    Route::get('admin/packages', [PackageController::class, 'index'])->name('admin.packages');
 });
 
 Route::middleware(DeliverMiddleware::class)->group(function () {
