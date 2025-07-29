@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('deliveries', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->enum('status', [0, 1, 2]);
             $table->string('step');
             $table->foreignId('package_id')->constrained()->cascadeOnDelete();
