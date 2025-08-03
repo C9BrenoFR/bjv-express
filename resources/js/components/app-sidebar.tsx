@@ -14,7 +14,7 @@ const mainNavItems: NavItem[] = [
     },
     {
         title: 'Funcionarios',
-        href: '/admin/employess',
+        href: '/admin/employees',
         icon: Users
     },
     {
