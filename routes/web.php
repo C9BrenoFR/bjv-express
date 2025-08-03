@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PackageController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\DeliverMiddleware;
@@ -17,6 +18,8 @@ Route::middleware(AdminMiddleware::class)->group(function () {
     })->name('dashboard');
 
     Route::get('admin/packages', [PackageController::class, 'index'])->name('admin.packages');
+
+    Route::get('admin/employees', [EmployeeController::class, 'index'])->name('admin.employees');
 });
 
 Route::middleware(DeliverMiddleware::class)->group(function () {
