@@ -6,6 +6,17 @@ if (!class_exists('Roles')) {
         public const ADMIN = '0';
         public const OPERATOR = '1';
         public const DELIVER = '2';
+
+        public static function translate($role)
+        {
+            if ($role == self::ADMIN)
+                return "Administrador";
+            else if ($role == self::OPERATOR)
+                return "Operador";
+            else if ($role == self::DELIVER)
+                return "Entregador";
+            return "SEM CARGO";
+        }
     }
 
 }
