@@ -7,8 +7,8 @@ import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Pacotes',
-        href: '/admin/packages',
+        title: 'Funcionários',
+        href: '/admin/employees',
     },
 ];
 
@@ -21,7 +21,7 @@ export default function EmployeesPage({ employees, pagination }: PageProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Pacotes" />
+            <Head title="Funcionários" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
                 <ManagementTable
                     data={employees}
@@ -34,6 +34,7 @@ export default function EmployeesPage({ employees, pagination }: PageProps) {
                         view: true,
                         edit: true,
                         delete: true,
+                        add: true,
                         link: '/admin/employees/'
                     }}
                 />
