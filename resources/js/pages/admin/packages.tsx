@@ -15,9 +15,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface PageProps {
     packages: any
     pagination: Pagination
+    search: string
 }
 
-export default function PackagesPage({ packages, pagination }: PageProps) {
+export default function PackagesPage({ packages, pagination, search }: PageProps) {
     console.log('Packages data:', packages);
 
     return (
@@ -36,6 +37,9 @@ export default function PackagesPage({ packages, pagination }: PageProps) {
                         add: true,
                         link: '/admin/packages/'
                     }}
+                    searchable={true}
+                    searchPlaceholder="Pesquisar por código, endereço, cidade..."
+                    searchValue={search}
                 />
             </div>
         </AppLayout>

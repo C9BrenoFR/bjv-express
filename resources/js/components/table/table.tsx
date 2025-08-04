@@ -39,9 +39,9 @@ export default function Table<T extends BaseEntity>({ data, data_keys, actions }
                         </TableRow>
                     )) : (
                         <TableRow>
-                            <td className="text-center">
-                                Nenhum pacote encontrado
-                            </td>
+                            <TableCell colSpan={data_keys.headers.length + 1} className="text-center text-gray-400">
+                                Nenhum item encontrado
+                            </TableCell>
                         </TableRow>
                     )
                 }

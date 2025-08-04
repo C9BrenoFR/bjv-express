@@ -15,9 +15,10 @@ const breadcrumbs: BreadcrumbItem[] = [
 interface PageProps {
     employees: any
     pagination: Pagination
+    search: string
 }
 
-export default function EmployeesPage({ employees, pagination }: PageProps) {
+export default function EmployeesPage({ employees, pagination, search }: PageProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -37,6 +38,9 @@ export default function EmployeesPage({ employees, pagination }: PageProps) {
                         add: true,
                         link: '/admin/employees/'
                     }}
+                    searchable={true}
+                    searchPlaceholder="Pesquisar por nome, email ou unidade..."
+                    searchValue={search}
                 />
             </div>
         </AppLayout>

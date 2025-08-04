@@ -1,5 +1,6 @@
 export type BaseEntity = {
     id: string | number
+    [key: string]: any  // Allow additional properties
 }
 
 export type Actions = {
@@ -10,7 +11,7 @@ export type Actions = {
     link: string
 }
 
-export type DataKeys<T> = {
-    keys: (keyof T)[]
+export type DataKeys<T = any> = {
+    keys: (keyof T | string)[]  // Allow both typed keys and string keys
     headers: string[]
 }
