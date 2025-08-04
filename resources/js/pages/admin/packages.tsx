@@ -33,6 +33,7 @@ export default function PackagesPage({ packages, pagination }: PageProps) {
                     pagination={pagination}
                     actions={{
                         view: true,
+                        add: true,
                         link: '/admin/packages/'
                     }}
                 />
