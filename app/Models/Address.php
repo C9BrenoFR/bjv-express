@@ -15,6 +15,7 @@ class Address extends Model
         'street',
         'number',
         'complement',
+        'zip_code',
     ];
 
     public const TOTAL = 0;
