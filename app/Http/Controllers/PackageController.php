@@ -11,16 +11,31 @@ use Status;
 
 class PackageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $packages = Package::with('address')
+        $query = Package::with('address')
             ->leftJoin('deliveries', 'packages.id', '=', 'deliveries.package_id')
             ->select(
                 'packages.*',
                 'deliveries.id as code',
                 'deliveries.status as status',
-            )
-            ->paginate(5);
+            );
+
+        // Apply search filter if provided
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('deliveries.id', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('address', function ($addressQuery) use ($searchTerm) {
+                        $addressQuery->where('city', 'like', "%{$searchTerm}%")
+                            ->orWhere('state', 'like', "%{$searchTerm}%")
+                            ->orWhere('street', 'like', "%{$searchTerm}%")
+                            ->orWhere('zip_code', 'like', "%{$searchTerm}%");
+                    });
+            });
+        }
+
+        $packages = $query->paginate(5)->appends($request->query());
 
         $packages->getCollection()->transform(function (Package $package) {
             $package->formatted_address = $package->address?->print(Address::STREET_MAIN_INFORMATION) ?? 'Endereço não encontrado';
@@ -40,7 +55,8 @@ class PackageController extends Controller
                 'total' => $packages->total(),
                 'per_page' => $packages->perPage(),
                 'last_page' => $packages->lastPage(),
-            ]
+            ],
+            'search' => $request->search ?? ''
         ]);
     }
 

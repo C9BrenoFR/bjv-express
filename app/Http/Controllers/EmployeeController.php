@@ -11,22 +11,37 @@ use Roles;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $employees = User::where('role', '!=', Roles::ADMIN)->paginate(5);
+        $query = User::where('role', '!=', Roles::ADMIN)->with('unit');
+
+        // Apply search filter if provided
+        if ($request->has('search') && !empty($request->search)) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhere('email', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('unit', function ($unitQuery) use ($searchTerm) {
+                        $unitQuery->where('title', 'like', "%{$searchTerm}%");
+                    });
+            });
+        }
+
+        $employees = $query->paginate(5)->appends($request->query());
 
         $employees->getCollection()->each(function (User $employee) {
             $employee->role = Roles::translate($employee->role);
         });
 
         return Inertia::render('admin/employees', [
-            'employees' => $employees->items(), // Pega apenas os dados dos pacotes
+            'employees' => $employees->items(), // Pega apenas os dados dos funcionários
             'pagination' => [
                 'current_page' => $employees->currentPage(),
                 'total' => $employees->total(),
                 'per_page' => $employees->perPage(),
                 'last_page' => $employees->lastPage(),
-            ]
+            ],
+            'search' => $request->search ?? ''
         ]);
     }
 
