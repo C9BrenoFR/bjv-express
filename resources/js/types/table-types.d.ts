@@ -6,6 +6,7 @@ export type Actions = {
     view?: boolean
     edit?: boolean
     delete?: boolean
+    add?: boolean
     link: string
 }
 
