@@ -33,7 +33,7 @@ export default function Table<T extends BaseEntity>({ data, data_keys, actions }
                                 <div className="flex gap-1">
                                     {actions.view && <ActionButton link={actions.link + "view/" + data.id} Icon={Eye} />}
                                     {actions.edit && <ActionButton link={actions.link + "edit/" + data.id} Icon={Pencil} />}
-                                    {actions.delete && <ActionButton link={actions.link + "delete/" + data.id} Icon={Trash} />}
+                                    {actions.delete && <ActionButton link={actions.link + data.id} Icon={Trash} method="delete" />}
                                 </div>
                             </TableCell>
                         </TableRow>
