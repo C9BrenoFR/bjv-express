@@ -3,15 +3,17 @@ import TableHeader from "./table-header";
 import TableRow from "./table-row";
 import TableCell from "./table-cell";
 import ActionButton from "./action-button";
-import { Eye, Pencil, Trash } from "lucide-react";
+import { Eye, Pencil, Trash, Check, PackageCheck } from "lucide-react";
 
 interface TableProps<T extends BaseEntity> {
     data: T[]
     data_keys: DataKeys<T>
     actions: Actions
+    onDelivery?: (item: T) => void
+    onCollect?: (item: T) => void
 }
 
-export default function Table<T extends BaseEntity>({ data, data_keys, actions }: TableProps<T>) {
+export default function Table<T extends BaseEntity>({ data, data_keys, actions, onDelivery, onCollect }: TableProps<T>) {
     return (
         <table className="w-full bg-[#404040] rounded-b-2xl rounded-tl-2xl">
             <thead>
@@ -34,6 +36,24 @@ export default function Table<T extends BaseEntity>({ data, data_keys, actions }
                                     {actions.view && <ActionButton link={actions.link + "view/" + data.id} Icon={Eye} />}
                                     {actions.edit && <ActionButton link={actions.link + "edit/" + data.id} Icon={Pencil} />}
                                     {actions.delete && <ActionButton link={actions.link + data.id} Icon={Trash} method="delete" />}
+                                    {actions.collect && onCollect && (
+                                        <button
+                                            onClick={() => onCollect(data)}
+                                            className="inline-flex h-8 w-10 items-center justify-center rounded bg-green-600 hover:bg-green-700 transition-colors"
+                                            title="Coletar"
+                                        >
+                                            <Check size={16} />
+                                        </button>
+                                    )}
+                                    {actions.deliver && onDelivery && (
+                                        <button
+                                            onClick={() => onDelivery(data)}
+                                            className="inline-flex h-8 w-10 items-center justify-center rounded bg-blue-600 hover:bg-blue-700 transition-colors"
+                                            title="Entregar"
+                                        >
+                                            <PackageCheck size={16} />
+                                        </button>
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>

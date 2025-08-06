@@ -8,6 +8,8 @@ export type Actions = {
     edit?: boolean
     delete?: boolean
     add?: boolean
+    collect?: boolean
+    deliver?: boolean
     link: string
 }
 

@@ -14,6 +14,8 @@ interface ManagementTableProps<T extends BaseEntity> {
     searchable?: boolean
     searchPlaceholder?: string
     searchValue?: string
+    onDelivery?: (item: T) => void
+    onCollect?: (item: T) => void
 }
 
 export default function ManagementTable<T extends BaseEntity>({
@@ -23,7 +25,9 @@ export default function ManagementTable<T extends BaseEntity>({
     actions,
     searchable = true,
     searchPlaceholder = "Pesquisar...",
-    searchValue = ""
+    searchValue = "",
+    onDelivery,
+    onCollect
 }: ManagementTableProps<T>) {
     return (
         <>
@@ -52,6 +56,8 @@ export default function ManagementTable<T extends BaseEntity>({
                 data={data}
                 data_keys={data_keys}
                 actions={actions}
+                onDelivery={onDelivery}
+                onCollect={onCollect}
             />
             <Pagination {...pagination} />
         </>
