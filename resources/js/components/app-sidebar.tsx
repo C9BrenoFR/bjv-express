@@ -37,13 +37,8 @@ const operatorNavItems: NavItem[] = [
     },
     {
         title: 'Confirmar Pacotes',
-        href: '/operator/packages/recieve',
+        href: '/confirm',
         icon: PackageCheck
-    },
-    {
-        title: 'Entregar Pacotes',
-        href: '/operator/packages/give',
-        icon: PackageMinus
     },
 ];
 
