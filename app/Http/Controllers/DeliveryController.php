@@ -99,6 +99,7 @@ class DeliveryController extends Controller
         // Atualizar o last_to_update para o entregador atual e adicionar o step
         $delivery->update([
             'last_to_update' => $user->id,
+            'status' => Status::ON_WAY,
             'mode' => Mode::IN_MOVEMENT,
             'step' => $request->step
         ]);
