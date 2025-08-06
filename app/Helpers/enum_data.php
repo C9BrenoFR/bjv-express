@@ -28,3 +28,11 @@ if (!class_exists('Status')) {
         public const DELIVERED = '2';
     }
 }
+if (!class_exists('Mode')) {
+    class Mode
+    {
+        public const IN_UNIT = '0';
+        public const IN_MOVEMENT = '1';
+        public const WAITING_FOR_UNIT = '2';
+    }
+}
