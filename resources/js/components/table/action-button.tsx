@@ -36,6 +36,21 @@ export default function ActionButton({
         );
     }
 
+    if (method === 'post') {
+        return (
+            <Link
+                href={link}
+                method="post"
+                as="button"
+                className={combinedClasses}
+                onClick={onClick}
+                onBefore={() => confirm('Tem certeza que deseja coletar este pacote?')}
+            >
+                <Icon size={16} />
+            </Link>
+        );
+    }
+
     return (
         <Link href={link} className={combinedClasses} onClick={onClick}>
             <Icon size={16} />
