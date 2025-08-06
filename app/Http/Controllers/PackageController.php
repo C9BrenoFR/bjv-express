@@ -23,8 +23,6 @@ class PackageController extends Controller
                 'deliveries.id as code',
                 'deliveries.status as status',
                 'deliveries.unit_id as unit_id',
-                'deliveries.step as step',
-                'units.title as unit_title'
             );
 
         // Apply search filter if provided
