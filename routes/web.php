@@ -3,6 +3,7 @@
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\DeliverMiddleware;
@@ -11,8 +12,11 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect('/login');
+    return Inertia::render('HomePage');
 })->name('home');
+
+Route::get('/tracking', [TrackingController::class, 'index'])->name('tracking');
+Route::post('/tracking', [TrackingController::class, 'show'])->name('tracking.show');
 
 Route::middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', function () {
