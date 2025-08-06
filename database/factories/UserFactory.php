@@ -27,10 +27,16 @@ class UserFactory extends Factory
     {
         $faker = PtbrFaker::create();
         $ids = Unit::get()->pluck("id")->toArray();
+        $last_login = null;
+        if ($faker->randomDigit() < 8) {
+            $last_login = now();
+        }
+
         return [
             'name' => $faker->name(),
             'email' => $faker->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'last_login' => $last_login,
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
             'role' => $faker->randomElement(['1', '2']),
