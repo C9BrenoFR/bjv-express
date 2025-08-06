@@ -1,12 +1,12 @@
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { LayoutGrid, Package, Users } from 'lucide-react';
+import { SharedData, type NavItem } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import { LayoutGrid, Package, PackageCheck, PackageMinus, PackagePlus, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -24,7 +24,53 @@ const mainNavItems: NavItem[] = [
     }
 ];
 
+const operatorNavItems: NavItem[] = [
+    {
+        title: 'Pacotes',
+        href: '/operator',
+        icon: Package,
+    },
+    {
+        title: 'Registar Nova Entrega',
+        href: '/operator/packages/create',
+        icon: PackagePlus
+    },
+    {
+        title: 'Confirmar Pacotes',
+        href: '/operator/packages/recieve',
+        icon: PackageCheck
+    },
+    {
+        title: 'Entregar Pacotes',
+        href: '/operator/packages/give',
+        icon: PackageMinus
+    },
+];
+
+const deliverNavItems: NavItem[] = [
+    {
+        title: 'Meus Pacotes',
+        href: '/deliver',
+        icon: Package,
+    },
+    {
+        title: 'Coletar Pacote',
+        href: '/deliver/unit',
+        icon: PackagePlus,
+    },
+];
+
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const user = auth.user;
+    let mainNavItems: NavItem[] = []
+    if (user.role == 0)
+        mainNavItems = adminNavItems
+    if (user.role == 1)
+        mainNavItems = operatorNavItems
+    if (user.role == 2)
+        mainNavItems = deliverNavItems
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
