@@ -43,10 +43,11 @@ interface PageProps {
     packages_info: PackagesInfo
     units_data: UnitData[]
     states_data: StateData[]
+    total_units: number
 
 }
 
-export default function Dashboard({ operators_info, delivers_info, packages_info, units_data, states_data }: PageProps) {
+export default function Dashboard({ operators_info, delivers_info, packages_info, units_data, states_data, total_units }: PageProps) {
     // Dados para os gráficos de pizza dos operadores
     const operatorsData = [
         { name: 'Ativos', value: operators_info.actives, color: '#8B5CF6' },
@@ -145,11 +146,11 @@ export default function Dashboard({ operators_info, delivers_info, packages_info
                             <CardTitle className="text-lg font-semibold text-foreground">Unidades</CardTitle>
                             <div className="space-y-2">
                                 <div>
-                                    <div className="text-2xl font-bold text-foreground">60</div>
+                                    <div className="text-2xl font-bold text-foreground">{total_units}</div>
                                     <div className="text-sm text-muted-foreground">Unidades Cadastradas</div>
                                 </div>
                                 <div>
-                                    <div className="text-2xl font-bold text-foreground">2.500</div>
+                                    <div className="text-2xl font-bold text-foreground">{packages_info.new / total_units}</div>
                                     <div className="text-sm text-muted-foreground">Pacotes por unidade</div>
                                 </div>
                             </div>
@@ -172,7 +173,7 @@ export default function Dashboard({ operators_info, delivers_info, packages_info
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold text-foreground">Operadores por unidade</CardTitle>
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-foreground">13,3</div>
+                                <div className="text-2xl font-bold text-foreground">{operators_info.registered / total_units}</div>
                                 <div className="text-sm text-muted-foreground">Operadores por unidade</div>
                             </div>
                         </CardHeader>
@@ -203,7 +204,7 @@ export default function Dashboard({ operators_info, delivers_info, packages_info
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold text-foreground">Motoristas por unidade</CardTitle>
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-foreground">8,7</div>
+                                <div className="text-2xl font-bold text-foreground">{delivers_info.registered / total_units}</div>
                                 <div className="text-sm text-muted-foreground">Motoristas por unidade</div>
                             </div>
                         </CardHeader>

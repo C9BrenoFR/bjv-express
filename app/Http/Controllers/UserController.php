@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\Delivery;
 use App\Models\Package;
+use App\Models\Unit;
+use App\Models\User;
 use Auth;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Mode;
+use Roles;
 use Status;
 
 class UserController extends Controller
@@ -69,54 +74,65 @@ class UserController extends Controller
 
     public function adminDashboard()
     {
+        $operators_info = [
+            'registered' => User::where('role', Roles::OPERATOR)->count(),
+            'actives' => User::where('role', Roles::OPERATOR)
+                ->where('last_login', '>=', now()->subDays(30))
+                ->count()
+        ];
+
+        $delivers_info = [
+            'registered' => User::where('role', Roles::DELIVER)->count(),
+            'actives' => User::where('role', Roles::DELIVER)
+                ->where('last_login', '>=', now()->subDays(30))
+                ->count()
+        ];
+
+        $packages_info = [
+            'new' => Package::where('created_at', '>=', now()->subDays(30))->count(),
+            'value' => Delivery::sum('value')
+        ];
+
+        $months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        $packagesByMonth = Package::selectRaw('MONTH(created_at) as month, COUNT(*) as packages')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', '<=', now()->month)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('packages', 'month');
+
+        $units_data = [];
+
+        for ($index = 1; $index <= now()->month; $index++) {
+            $units_data[] = [
+                'month' => $months[$index - 1],
+                'packages' => $packagesByMonth[$index] ?? 0
+            ];
+        }
+
+        $states_data = \DB::table('units')
+            ->join('addresses', 'units.address_id', '=', 'addresses.id')
+            ->select('addresses.state as name', \DB::raw('COUNT(*) as units'))
+            ->groupBy('addresses.state')
+            ->orderBy('units', 'desc')
+            ->limit(3)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'name' => $item->name,
+                    'units' => $item->units
+                ];
+            })
+            ->toArray();
+
         return Inertia::render('admin/dashboard', [
-            'operators_info' => [
-                'registered' => 1200,
-                'actives' => 800
-            ],
-
-            'delivers_info' => [
-                'registered' => 1200,
-                'actives' => 800
-            ],
-
-            'packages_info' => [
-                'new' => 2000,
-                'value' => 9000
-            ],
-
-            'units_data' => [
-                [
-                    'month' => 'Jan',
-                    'packages' => 300,
-                ],
-                [
-                    'month' => 'Fev',
-                    'packages' => 300,
-                ],
-                [
-                    'month' => 'Mar',
-                    'packages' => 300,
-                ],
-                [
-                    'month' => 'Abr',
-                    'packages' => 300,
-                ],
-            ],
-            'states_data' => [
-                [
-                    'name' => 'São Paulo',
-                    'units' => 12,
-                ],
-                [
-                    'name' => 'São Paulo',
-                    'units' => 12,
-                ],
-                [
-                    'name' => 'São Paulo',
-                    'units' => 12,
-                ],
-            ]
+            'operators_info' => $operators_info,
+            'total_units' => Unit::count(),
+            'delivers_info' => $delivers_info,
+            'packages_info' => $packages_info,
+            'units_data' => $units_data,
+            'states_data' => $states_data
         ]);
     }
 }
