@@ -33,6 +33,11 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Atualizar o último login do usuário
+        \Auth::user()->update([
+            'last_login' => now()
+        ]);
+
         if (\Auth::user()->role == \Roles::DELIVER)
             return redirect()->route('dashboard.deliver');
 
