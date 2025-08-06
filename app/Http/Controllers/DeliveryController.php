@@ -18,7 +18,7 @@ class DeliveryController extends Controller
     {
         $units = Unit::with('address')->get();
 
-        return Inertia::render('deliver/index', [
+        return Inertia::render('deliver/units', [
             'units' => $units
         ]);
     }
@@ -66,7 +66,7 @@ class DeliveryController extends Controller
             return $package;
         });
 
-        return Inertia::render('deliver/dashboard', [
+        return Inertia::render('deliver/packages', [
             'packages' => $packages->items(),
             'pagination' => [
                 'current_page' => $packages->currentPage(),
@@ -156,7 +156,7 @@ class DeliveryController extends Controller
         // Get all units for the delivery modal
         $units = Unit::with('address')->get();
 
-        return Inertia::render('deliver/my-deliveries', [
+        return Inertia::render('deliver/dashboard', [
             'packages' => $packages->items(),
             'pagination' => [
                 'current_page' => $packages->currentPage(),
