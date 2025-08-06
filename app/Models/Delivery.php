@@ -12,6 +12,7 @@ class Delivery extends Model
     protected $fillable = [
         'status',
         'step',
+        'mode',
         'package_id',
         'last_to_update',
         'unit_id',
@@ -29,6 +30,6 @@ class Delivery extends Model
 
     public function lastToUpdate()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'last_to_update');
     }
 }
