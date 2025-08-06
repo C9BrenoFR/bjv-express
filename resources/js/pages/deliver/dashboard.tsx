@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Pagination } from '@/types/pagination';
 import { Head, Link } from '@inertiajs/react';
-import { Package, PackagePlus } from 'lucide-react';
+import { Info, Package, PackagePlus } from 'lucide-react';
 import { useState } from 'react';
 
 // Import the delivery modal component
@@ -55,25 +55,6 @@ export default function MyDeliveries({ packages, pagination, search, units }: Pa
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Minhas Entregas" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
-                {/* Header */}
-                <div className="flex items-center gap-4 bg-[#404040] p-4 rounded-lg">
-                    <div className="flex-1">
-                        <h1 className="text-xl font-semibold text-white">
-                            Minhas Entregas
-                        </h1>
-                        <p className="text-gray-400 text-sm">
-                            Pacotes sob sua responsabilidade
-                        </p>
-                    </div>
-                    <Link
-                        href="/deliver/unit"
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                    >
-                        <PackagePlus size={16} />
-                        <span>Coletar Pacotes</span>
-                    </Link>
-                </div>
-
                 <ManagementTable
                     data={packages}
                     data_keys={{
@@ -89,6 +70,21 @@ export default function MyDeliveries({ packages, pagination, search, units }: Pa
                     }}
                     searchable={true}
                     searchPlaceholder="Pesquisar por código ou endereço"
+                    empty_message={(
+                        <div className="flex items-center justify-evenly gap-10">
+                            <span className='flex gap-2'>
+                                <Info />
+                                Você não possui pacotes sob sua responsabilidade
+                            </span>
+                            <Link
+                                href="/deliver/unit"
+                                className="flex items-center gap-2 px-4 py-2 border border-white text-white hover:border-transparent hover:bg-white hover:text-black rounded-lg transition-colors"
+                            >
+                                <PackagePlus size={16} />
+                                <span>Coletar Pacotes</span>
+                            </Link>
+                        </div>
+                    )}
                     searchValue={search}
                     onDelivery={handleDelivery}
                 />

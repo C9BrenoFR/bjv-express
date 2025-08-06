@@ -14,6 +14,7 @@ interface ManagementTableProps<T extends BaseEntity> {
     searchable?: boolean
     searchPlaceholder?: string
     searchValue?: string
+    empty_message?: React.ReactNode
     onDelivery?: (item: T) => void
     onCollect?: (item: T) => void
 }
@@ -26,6 +27,7 @@ export default function ManagementTable<T extends BaseEntity>({
     searchable = true,
     searchPlaceholder = "Pesquisar...",
     searchValue = "",
+    empty_message,
     onDelivery,
     onCollect
 }: ManagementTableProps<T>) {
@@ -58,6 +60,7 @@ export default function ManagementTable<T extends BaseEntity>({
                 actions={actions}
                 onDelivery={onDelivery}
                 onCollect={onCollect}
+                empty_message={empty_message}
             />
             <Pagination {...pagination} />
         </>

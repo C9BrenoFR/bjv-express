@@ -3,17 +3,17 @@ import TableHeader from "./table-header";
 import TableRow from "./table-row";
 import TableCell from "./table-cell";
 import ActionButton from "./action-button";
-import { Eye, Pencil, Trash, Check, PackageCheck } from "lucide-react";
+import { Eye, Pencil, Trash, Check, PackageCheck, Info } from "lucide-react";
 
 interface TableProps<T extends BaseEntity> {
     data: T[]
     data_keys: DataKeys<T>
     actions: Actions
+    empty_message?: React.ReactNode
     onDelivery?: (item: T) => void
     onCollect?: (item: T) => void
 }
-
-export default function Table<T extends BaseEntity>({ data, data_keys, actions, onDelivery, onCollect }: TableProps<T>) {
+export default function Table<T extends BaseEntity>({ data, data_keys, actions, onDelivery, onCollect, empty_message = (<span className='flex gap-2'><Info />Nenhum item encontrado</span>) }: TableProps<T>) {
     return (
         <table className="w-full bg-[#404040] rounded-b-2xl rounded-tl-2xl">
             <thead>
@@ -59,8 +59,10 @@ export default function Table<T extends BaseEntity>({ data, data_keys, actions, 
                         </TableRow>
                     )) : (
                         <TableRow>
-                            <TableCell colSpan={data_keys.headers.length + 1} className="text-center text-gray-400">
-                                Nenhum item encontrado
+                            <TableCell colSpan={data_keys.headers.length + 1} className="text-gray-400">
+                                <div className="flex items-center-center justify-center">
+                                    {empty_message}
+                                </div>
                             </TableCell>
                         </TableRow>
                     )
