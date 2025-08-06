@@ -66,4 +66,57 @@ class UserController extends Controller
             'search' => $request->search ?? ''
         ]);
     }
+
+    public function adminDashboard()
+    {
+        return Inertia::render('admin/dashboard', [
+            'operators_info' => [
+                'registered' => 1200,
+                'actives' => 800
+            ],
+
+            'delivers_info' => [
+                'registered' => 1200,
+                'actives' => 800
+            ],
+
+            'packages_info' => [
+                'new' => 2000,
+                'value' => 9000
+            ],
+
+            'units_data' => [
+                [
+                    'month' => 'Jan',
+                    'packages' => 300,
+                ],
+                [
+                    'month' => 'Fev',
+                    'packages' => 300,
+                ],
+                [
+                    'month' => 'Mar',
+                    'packages' => 300,
+                ],
+                [
+                    'month' => 'Abr',
+                    'packages' => 300,
+                ],
+            ],
+            'states_data' => [
+                [
+                    'name' => 'São Paulo',
+                    'units' => 12,
+                ],
+                [
+                    'name' => 'São Paulo',
+                    'units' => 12,
+                ],
+                [
+                    'name' => 'São Paulo',
+                    'units' => 12,
+                ],
+            ]
+        ]);
+    }
 }

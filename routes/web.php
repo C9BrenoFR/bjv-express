@@ -19,9 +19,7 @@ Route::get('/tracking', [TrackingController::class, 'index'])->name('tracking');
 Route::post('/tracking', [TrackingController::class, 'show'])->name('tracking.show');
 
 Route::middleware(AdminMiddleware::class)->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('admin/dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [UserController::class, 'adminDashboard'])->name('dashboard');
 
     // Rotas de pacotes
     Route::get('admin/packages', [PackageController::class, 'index'])->name('admin.packages');
