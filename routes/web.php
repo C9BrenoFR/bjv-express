@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PackageController;
+use App\Http\Controllers\UserController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\DeliverMiddleware;
 use App\Http\Middleware\OperatorMiddleware;
@@ -14,7 +16,7 @@ Route::get('/', function () {
 
 Route::middleware(AdminMiddleware::class)->group(function () {
     Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
+        return Inertia::render('admin/dashboard');
     })->name('dashboard');
 
     // Rotas de pacotes
@@ -37,17 +39,20 @@ Route::middleware(AdminMiddleware::class)->group(function () {
 });
 
 Route::middleware(DeliverMiddleware::class)->group(function () {
-    Route::get('/deliver', function () {
-        echo "Logado como Entregador";
-        return;
-    })->name('dashboard.deliver');
+    Route::get('/deliver', [DeliveryController::class, 'myDeliveries'])->name('dashboard.deliver');
+    Route::get('/deliver/unit', [DeliveryController::class, 'index'])->name('deliver.units');
+    Route::get('/deliver/unit/{unit}', [DeliveryController::class, 'dashboard'])->name('deliver.unit');
+    Route::get('/deliver/view/{package}', [DeliveryController::class, 'show'])->name('deliver.show');
+    Route::post('/deliver/collect/{package}', [DeliveryController::class, 'collect'])->name('deliver.collect');
+    Route::post('/deliver/deliver/{package}', [DeliveryController::class, 'deliver'])->name('deliver.deliver');
 });
 
 Route::middleware(OperatorMiddleware::class)->group(function () {
-    Route::get('/operator', function () {
-        echo "Logado como operador";
-        return;
-    })->name('dashboard.operator');
+    Route::get('/operator', [UserController::class, 'operatorDashboard'])->name('dashboard.operator');
+
+    Route::get('operator/packages/create', [PackageController::class, 'create'])->name('operator.packages.create');
+    Route::post('operator/packages', [PackageController::class, 'store'])->name('operator.packages.store');
+    Route::get('operator/packages/view/{package}', [PackageController::class, 'show'])->name('operator.packages.show');
 });
 
 Route::get('/test-auth', function () {
