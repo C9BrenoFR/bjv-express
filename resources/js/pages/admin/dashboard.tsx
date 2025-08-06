@@ -244,14 +244,6 @@ export default function Dashboard({ operators_info, delivers_info, packages_info
                             ))}
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="relative min-h-[300px] flex items-center justify-center bg-muted rounded-lg">
-                            <div className="text-center text-muted-foreground">
-                                <p className="text-lg">Mapa do Brasil</p>
-                                <p className="text-sm">Aqui seria exibido o mapa interativo</p>
-                            </div>
-                        </div>
-                    </CardContent>
                 </Card>
             </div>
         </AppLayout>
