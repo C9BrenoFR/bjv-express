@@ -49,10 +49,13 @@ Route::middleware(DeliverMiddleware::class)->group(function () {
 
 Route::middleware(OperatorMiddleware::class)->group(function () {
     Route::get('/operator', [UserController::class, 'operatorDashboard'])->name('dashboard.operator');
+    Route::get('/confirm', [PackageController::class, 'confirm']);
 
     Route::get('operator/packages/create', [PackageController::class, 'create'])->name('operator.packages.create');
     Route::post('operator/packages', [PackageController::class, 'store'])->name('operator.packages.store');
     Route::get('operator/packages/view/{package}', [PackageController::class, 'show'])->name('operator.packages.show');
+    Route::post('/operator/packages/confirm/{package}', [PackageController::class, 'recieve']);
+
 });
 
 Route::get('/test-auth', function () {
