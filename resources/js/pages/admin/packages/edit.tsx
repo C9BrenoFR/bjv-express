@@ -31,6 +31,7 @@ interface Package {
     height: number;
     depth: number;
     weight: number;
+    value: number;
     address: Address;
 }
 
@@ -44,6 +45,7 @@ export default function EditPackagePage({ package: pkg }: PageProps) {
         height: pkg.height.toString(),
         depth: pkg.depth.toString(),
         weight: pkg.weight.toString(),
+        value: pkg.value || 0,
         street: pkg.address.street,
         number: pkg.address.number,
         city: pkg.address.city,
@@ -52,8 +54,43 @@ export default function EditPackagePage({ package: pkg }: PageProps) {
         complement: pkg.address.complement || '',
     });
 
+    // Função para calcular o valor automaticamente
+    const calculateValue = () => {
+        const width = parseFloat(data.width) || 0;
+        const height = parseFloat(data.height) || 0;
+        const weight = parseFloat(data.weight) || 0;
+
+        // Área = largura × altura
+        const area = width * height;
+
+        // Valor = área × peso
+        const calculatedValue = area * weight;
+
+        setData('value', calculatedValue);
+        return calculatedValue;
+    };
+
+    // Atualizar valor sempre que as dimensões ou peso mudarem
+    const handleDimensionChange = (field: string, value: string) => {
+        setData(field as any, value);
+
+        // Recalcular valor após atualizar o campo
+        setTimeout(() => {
+            const width = parseFloat(field === 'width' ? value : data.width) || 0;
+            const height = parseFloat(field === 'height' ? value : data.height) || 0;
+            const weight = parseFloat(field === 'weight' ? value : data.weight) || 0;
+
+            const area = width * height;
+            const calculatedValue = area * weight;
+
+            setData('value', calculatedValue);
+        }, 0);
+    };
+
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        // Garantir que o valor está calculado antes de enviar
+        calculateValue();
         put(route('admin.packages.update', pkg.id));
     };
 
@@ -86,7 +123,7 @@ export default function EditPackagePage({ package: pkg }: PageProps) {
                                             min="0"
                                             value={data.width}
                                             className="mt-1 bg-[#262626] border-gray-600 text-white"
-                                            onChange={(e) => setData('width', e.target.value)}
+                                            onChange={(e) => handleDimensionChange('width', e.target.value)}
                                             required
                                         />
                                         {errors.width && <div className="text-red-400 text-sm mt-1">{errors.width}</div>}
@@ -104,7 +141,7 @@ export default function EditPackagePage({ package: pkg }: PageProps) {
                                             min="0"
                                             value={data.height}
                                             className="mt-1 bg-[#262626] border-gray-600 text-white"
-                                            onChange={(e) => setData('height', e.target.value)}
+                                            onChange={(e) => handleDimensionChange('height', e.target.value)}
                                             required
                                         />
                                         {errors.height && <div className="text-red-400 text-sm mt-1">{errors.height}</div>}
@@ -140,11 +177,24 @@ export default function EditPackagePage({ package: pkg }: PageProps) {
                                             min="0"
                                             value={data.weight}
                                             className="mt-1 bg-[#262626] border-gray-600 text-white"
-                                            onChange={(e) => setData('weight', e.target.value)}
+                                            onChange={(e) => handleDimensionChange('weight', e.target.value)}
                                             required
                                         />
                                         {errors.weight && <div className="text-red-400 text-sm mt-1">{errors.weight}</div>}
                                     </div>
+                                </div>
+
+                                {/* Campo de valor calculado */}
+                                <div className="mt-4">
+                                    <label className="block text-sm font-medium text-gray-300">
+                                        Valor da Entrega
+                                    </label>
+                                    <div className="mt-1 bg-[#262626] border border-gray-600 rounded-md px-3 py-2 text-white">
+                                        R$ {data.value.toFixed(2).replace('.', ',')}
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-1">
+                                        Calculado automaticamente: (Largura × Altura) × Peso
+                                    </p>
                                 </div>
                             </div>
 

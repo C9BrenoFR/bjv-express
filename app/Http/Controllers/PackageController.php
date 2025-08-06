@@ -76,6 +76,7 @@ class PackageController extends Controller
             'height' => 'required|numeric|min:0',
             'depth' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:0',
+            'value' => 'required|numeric|min:0',
             'street' => 'required|string|max:255',
             'number' => 'required|string|max:20',
             'city' => 'required|string|max:100',
@@ -101,6 +102,17 @@ class PackageController extends Controller
             'depth' => $validated['depth'],
             'weight' => $validated['weight'],
             'address_id' => $address->id,
+        ]);
+
+        // Criar delivery associado ao pacote
+        Delivery::create([
+            'package_id' => $package->id,
+            'value' => $validated['value'],
+            'status' => Status::IN_SEPARATION, // Status inicial
+            'mode' => Mode::WAITING_FOR_UNIT, // Modo inicial
+            'step' => 'Pacote criado e aguardando processamento',
+            'unit_id' => null, // Será definido quando for atribuído a uma unidade
+            'last_to_update' => auth()->id(),
         ]);
 
         return redirect()->route('admin.packages')->with('success', 'Pacote criado com sucesso!');
@@ -150,10 +162,21 @@ class PackageController extends Controller
 
     public function edit(Package $package)
     {
-        $package->load('address');
+        $package->load(['address', 'deliver']);
+
+        // Incluir o valor do delivery se existir
+        $packageData = [
+            'id' => $package->id,
+            'width' => $package->width,
+            'height' => $package->height,
+            'depth' => $package->depth,
+            'weight' => $package->weight,
+            'value' => $package->deliver?->value ?? 0,
+            'address' => $package->address,
+        ];
 
         return Inertia::render('admin/packages/edit', [
-            'package' => $package
+            'package' => $packageData
         ]);
     }
 
@@ -164,6 +187,7 @@ class PackageController extends Controller
             'height' => 'required|numeric|min:0',
             'depth' => 'required|numeric|min:0',
             'weight' => 'required|numeric|min:0',
+            'value' => 'required|numeric|min:0',
             'street' => 'required|string|max:255',
             'number' => 'required|string|max:20',
             'city' => 'required|string|max:100',
@@ -189,6 +213,14 @@ class PackageController extends Controller
             'depth' => $validated['depth'],
             'weight' => $validated['weight'],
         ]);
+
+        // Atualizar delivery associado
+        if ($package->deliver) {
+            $package->deliver->update([
+                'value' => $validated['value'],
+                'last_to_update' => auth()->id(),
+            ]);
+        }
 
         return redirect()->route('admin.packages')->with('success', 'Pacote atualizado com sucesso!');
     }
