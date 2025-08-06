@@ -13,6 +13,7 @@ class Delivery extends Model
         'status',
         'step',
         'mode',
+        'value',
         'package_id',
         'last_to_update',
         'unit_id',

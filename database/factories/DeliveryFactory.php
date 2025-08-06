@@ -47,6 +47,7 @@ class DeliveryFactory extends Factory
             'package_id' => $package->id,
             'last_to_update' => $faker->randomElement($users_ids),
             'unit_id' => $faker->randomElement($unit_ids),
+            'value' => $faker->randomFloat(2, 10, 200),
         ];
     }
 }
