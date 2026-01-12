@@ -18,7 +18,7 @@ class OperatorMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $logged = Auth::user();
-        if (!$logged || $logged->role != Roles::OPERATOR) {
+        if (!$logged || !($logged->role == Roles::OPERATOR || $logged->role == Roles::ADMIN)) {
             return redirect()->route("login");
         }
         return $next($request);

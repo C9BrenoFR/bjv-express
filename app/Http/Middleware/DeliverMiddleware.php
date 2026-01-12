@@ -18,7 +18,7 @@ class DeliverMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $logged = Auth::user();
-        if (!$logged || $logged->role != Roles::DELIVER) {
+        if (!$logged || !($logged->role == Roles::DELIVER || $logged->role == Roles::ADMIN)) {
             return redirect()->route("login");
         }
         return $next($request);
