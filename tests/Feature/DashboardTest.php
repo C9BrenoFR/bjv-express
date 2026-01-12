@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Unit;
 use App\Models\User;
+use Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,7 +19,16 @@ class DashboardTest extends TestCase
 
     public function test_authenticated_users_can_visit_the_dashboard()
     {
-        $this->actingAs($user = User::factory()->create());
+        Unit::factory()->count(10)->create();
+        
+        $this->actingAs($user = User::create([
+            'name' => "Admin",
+            'email' => "admin@gmail.com",
+            'email_verified_at' => now(),
+            'password' => Hash::make('password'),
+            'role' => '0',
+            'unit_id' => 1
+        ]));
 
         $this->get('/dashboard')->assertOk();
     }
