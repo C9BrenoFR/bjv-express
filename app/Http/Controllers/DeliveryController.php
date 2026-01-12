@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Delivery;
+use App\Models\History;
 use App\Models\Unit;
 use App\Models\Package;
 use Auth;
@@ -25,20 +26,28 @@ class DeliveryController extends Controller
 
     public function dashboard(Request $request, Unit $unit)
     {
-        $query = Package::with(['address', 'deliver.lastToUpdate'])
+        $query = Package::with(['address', 'deliver.lastToUpdate', 'deliver.histories'])
             ->leftJoin('deliveries', 'packages.id', '=', 'deliveries.package_id')
             ->leftJoin('users', 'deliveries.last_to_update', '=', 'users.id')
+            ->leftJoin('histories', function ($join) {
+                $join->on('deliveries.id', '=', 'histories.delivery_id')
+                    ->whereRaw('histories.id = (SELECT MAX(h.id) FROM histories h WHERE h.delivery_id = deliveries.id)');
+            })
             ->select(
                 'packages.*',
                 'deliveries.id as code',
                 'deliveries.status as status',
                 'deliveries.unit_id as unit_id',
-                'deliveries.last_to_update as last_to_update'
+                'deliveries.last_to_update as last_to_update',
+                'histories.mode as mode'
             )
             ->where([
                 ['deliveries.unit_id', '=', $unit->id],
-                ['mode', '=', Mode::IN_UNIT]
-            ]);
+            ])
+            ->where(function ($q) {
+                $q->whereNull('histories.mode')
+                    ->orWhere('histories.mode', '=', Mode::IN_UNIT);
+            });
         // Apply search filter if provided
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
@@ -100,8 +109,12 @@ class DeliveryController extends Controller
         $delivery->update([
             'last_to_update' => $user->id,
             'status' => Status::ON_WAY,
+        ]);
+
+        // Criar histórico com o novo step
+        $delivery->histories()->create([
+            'step' => $request->step,
             'mode' => Mode::IN_MOVEMENT,
-            'step' => $request->step
         ]);
 
         return redirect()->back()->with('success', 'Pacote coletado com sucesso!');
@@ -111,20 +124,25 @@ class DeliveryController extends Controller
     {
         $user = Auth::user();
 
-        $query = Package::with(['address', 'deliver.unit'])
+        $query = Package::with(['address', 'deliver.unit', 'deliver.histories'])
             ->leftJoin('deliveries', 'packages.id', '=', 'deliveries.package_id')
             ->leftJoin('units', 'deliveries.unit_id', '=', 'units.id')
+            ->leftJoin('histories', function ($join) {
+                $join->on('deliveries.id', '=', 'histories.delivery_id')
+                    ->whereRaw('histories.id = (SELECT MAX(h.id) FROM histories h WHERE h.delivery_id = deliveries.id)');
+            })
             ->select(
                 'packages.*',
                 'deliveries.id as code',
                 'deliveries.status as status',
                 'deliveries.unit_id as unit_id',
-                'deliveries.step as step',
+                'histories.step as step',
+                'histories.mode as mode',
                 'units.title as unit_title'
             )
             ->where('status', '!=', Status::DELIVERED)
             ->where('deliveries.last_to_update', $user->id)
-            ->where('deliveries.mode', Mode::IN_MOVEMENT);
+            ->where('histories.mode', Mode::IN_MOVEMENT);
 
         // Apply search filter if provided
         if ($request->has('search') && !empty($request->search)) {
@@ -201,16 +219,27 @@ class DeliveryController extends Controller
             // Entrega final - alterar status para entregue
             $delivery->update([
                 'status' => Status::DELIVERED,
-                'step' => $request->step
             ]);
+
+            // Criar histórico de entrega final
+            $delivery->histories()->create([
+                'step' => $request->step,
+                'mode' => Mode::IN_UNIT,
+            ]);
+
             $message = 'Pacote entregue no destino final com sucesso!';
         } else {
-            // Entrega para unidade - alterar mode e unit_id
+            // Entrega para unidade - alterar unit_id
             $delivery->update([
-                'mode' => Mode::WAITING_FOR_UNIT,
                 'unit_id' => $request->unit_id,
-                'step' => $request->step
             ]);
+
+            // Criar histórico de transferência para unidade
+            $delivery->histories()->create([
+                'step' => $request->step,
+                'mode' => Mode::WAITING_FOR_UNIT,
+            ]);
+
             $message = 'Pacote enviado para a unidade com sucesso!';
         }
 
@@ -222,12 +251,15 @@ class DeliveryController extends Controller
         $user = Auth::user();
 
         // Carregar o pacote com relacionamentos
-        $package->load(['address', 'deliver.unit', 'deliver.lastToUpdate']);
+        $package->load(['address', 'deliver.unit', 'deliver.lastToUpdate', 'deliver.histories']);
 
         // Verificar se o entregador tem permissão para ver este pacote
         if ($package->deliver && $package->deliver->last_to_update !== $user->id) {
             return redirect()->route('dashboard.deliver')->with('error', 'Você não tem permissão para visualizar este pacote.');
         }
+
+        // Obter o histórico mais recente
+        $latestHistory = $package->deliver?->histories?->sortByDesc('created_at')->first();
 
         // Formatar informações para exibição
         $packageData = [
@@ -239,7 +271,15 @@ class DeliveryController extends Controller
             'weight' => $package->weight,
             'formatted_address' => $package->address?->print(\App\Models\Address::TOTAL) ?? 'Endereço não encontrado',
             'status' => $package->deliver?->status,
-            'step' => $package->deliver?->step ?? 'Nenhum passo registrado',
+            'step' => $latestHistory?->step ?? 'Nenhum passo registrado',
+            'histories' => $package->deliver?->histories?->sortByDesc('created_at')->values()->map(function ($history) {
+                return [
+                    'id' => $history->id,
+                    'step' => $history->step,
+                    'mode' => $history->mode,
+                    'created_at' => $history->created_at,
+                ];
+            })->toArray() ?? [],
             'unit_title' => $package->deliver?->unit?->title ?? 'N/A',
             'created_at' => $package->created_at,
             'updated_at' => $package->deliver?->updated_at ?? $package->updated_at,

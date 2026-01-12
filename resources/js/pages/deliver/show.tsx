@@ -1,5 +1,6 @@
 import PackageShow from '@/components/package-show';
 import { type BreadcrumbItem } from '@/types';
+import { HistoryType } from '@/types/package';
 
 interface PackageData {
     id: number;
@@ -11,6 +12,7 @@ interface PackageData {
     formatted_address: string;
     status: string;
     step: string;
+    histories: HistoryType[];
     unit_title: string;
     created_at: string;
     updated_at: string;

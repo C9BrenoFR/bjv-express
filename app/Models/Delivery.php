@@ -11,8 +11,6 @@ class Delivery extends Model
     use HasFactory, HasUuids;
     protected $fillable = [
         'status',
-        'step',
-        'mode',
         'value',
         'package_id',
         'last_to_update',
@@ -32,5 +30,10 @@ class Delivery extends Model
     public function lastToUpdate()
     {
         return $this->belongsTo(User::class, 'last_to_update');
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(History::class);
     }
 }

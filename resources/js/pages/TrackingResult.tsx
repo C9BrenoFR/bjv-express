@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { PackageType } from '@/types/package.d';
-import { ArrowLeft, Package, MapPin, Ruler, Weight, Calendar, Building, FileText } from 'lucide-react';
+import { ArrowLeft, Package, MapPin, Ruler, Weight, Calendar, Building, FileText, Clock, History } from 'lucide-react';
 
 interface TrackingResultProps {
     packageData: PackageType;
@@ -150,17 +150,46 @@ export default function TrackingResult({ packageData, deliveryId }: TrackingResu
                                     </div>
                                 </div>
 
-                                {/* Passo Atual */}
+                                {/* Histórico de Entregas */}
                                 <div className="bg-gray-50 rounded-lg p-6">
                                     <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                        <FileText size={20} />
-                                        Passo Atual
+                                        <History size={20} />
+                                        Histórico de Entregas
                                     </h2>
 
-                                    <div className="bg-white p-4 rounded-lg border">
-                                        <div className="text-gray-900 leading-relaxed">
-                                            {packageData.step}
-                                        </div>
+                                    <div className="space-y-3 max-h-64 overflow-y-auto">
+                                        {packageData.histories && packageData.histories.length > 0 ? (
+                                            packageData.histories.map((history, index) => (
+                                                <div key={history.id} className="bg-white p-3 rounded-lg border border-l-4 border-l-blue-500">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1">
+                                                            <p className="text-gray-900 font-medium">{history.step}</p>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <Clock size={14} className="text-gray-500" />
+                                                                <span className="text-gray-500 text-sm">
+                                                                    {new Date(history.created_at).toLocaleDateString('pt-BR', {
+                                                                        day: '2-digit',
+                                                                        month: '2-digit',
+                                                                        year: 'numeric',
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit'
+                                                                    })}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        {index === 0 && (
+                                                            <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                                                                Atual
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="bg-white p-4 rounded-lg border text-center">
+                                                <p className="text-gray-500">Nenhum histórico disponível</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

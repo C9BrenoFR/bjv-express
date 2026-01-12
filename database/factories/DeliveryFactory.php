@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Address;
+use App\Models\Delivery;
+use App\Models\History;
 use App\Models\Package;
 use App\Models\Unit;
 use App\Models\User;
@@ -43,11 +45,24 @@ class DeliveryFactory extends Factory
         ]);
         return [
             'status' => '0',
-            'step' => 'Pacote esperando entregador',
             'package_id' => $package->id,
             'last_to_update' => $faker->randomElement($users_ids),
             'unit_id' => $faker->randomElement($unit_ids),
             'value' => $faker->randomFloat(2, 10, 200),
         ];
+    }
+
+    /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Delivery $delivery) {
+            History::create([
+                'step' => 'Pacote esperando entregador',
+                'mode' => '0',
+                'delivery_id' => $delivery->id,
+            ]);
+        });
     }
 }
