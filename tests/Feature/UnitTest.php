@@ -123,7 +123,7 @@ class UnitTest extends TestCase
         // Deletar unidade
         $unit->delete();
 
-        $this->assertDatabaseMissing('units', [
+        $this->assertSoftDeleted('units', [
             'id' => $unitId,
         ]);
     }
@@ -177,7 +177,7 @@ class UnitTest extends TestCase
         // Criar usuários na unidade
         User::create([
             'name' => 'Funcionário 1',
-            'email' => 'func1@teste.com',
+            'email' => 'func1.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '1',
             'unit_id' => $unit->id,
@@ -185,7 +185,7 @@ class UnitTest extends TestCase
 
         User::create([
             'name' => 'Funcionário 2',
-            'email' => 'func2@teste.com',
+            'email' => 'func2.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '2',
             'unit_id' => $unit->id,

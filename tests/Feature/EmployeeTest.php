@@ -35,14 +35,13 @@ class EmployeeTest extends TestCase
         // Criar funcionário
         $employee = User::create([
             'name' => 'João Silva',
-            'email' => 'joao.silva@teste.com',
+            'email' => 'joao.silva.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '1',
             'unit_id' => $unit->id,
         ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => 'joao.silva@teste.com',
             'name' => 'João Silva',
             'role' => '1',
         ]);
@@ -71,9 +70,10 @@ class EmployeeTest extends TestCase
             'address_id' => $address->id,
         ]);
 
+        $email = 'maria.santos.' . uniqid() . '@teste.com';
         $employee = User::create([
             'name' => 'Maria Santos',
-            'email' => 'maria.santos@teste.com',
+            'email' => $email,
             'password' => Hash::make('password123'),
             'role' => '2',
             'unit_id' => $unit->id,
@@ -84,7 +84,7 @@ class EmployeeTest extends TestCase
 
         $this->assertNotNull($foundEmployee);
         $this->assertEquals('Maria Santos', $foundEmployee->name);
-        $this->assertEquals('maria.santos@teste.com', $foundEmployee->email);
+        $this->assertEquals($email, $foundEmployee->email);
         $this->assertEquals('2', $foundEmployee->role);
     }
 
@@ -110,23 +110,24 @@ class EmployeeTest extends TestCase
 
         $employee = User::create([
             'name' => 'Pedro Oliveira',
-            'email' => 'pedro.oliveira@teste.com',
+            'email' => 'pedro.oliveira.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '1',
             'unit_id' => $unit->id,
         ]);
 
+        $newEmail = 'pedro.silva.' . uniqid() . '@teste.com';
         // Atualizar funcionário
         $employee->update([
             'name' => 'Pedro Oliveira Silva',
-            'email' => 'pedro.silva@teste.com',
+            'email' => $newEmail,
             'role' => '2',
         ]);
 
         $this->assertDatabaseHas('users', [
             'id' => $employee->id,
             'name' => 'Pedro Oliveira Silva',
-            'email' => 'pedro.silva@teste.com',
+            'email' => $newEmail,
             'role' => '2',
         ]);
     }
@@ -153,7 +154,7 @@ class EmployeeTest extends TestCase
 
         $employee = User::create([
             'name' => 'Ana Costa',
-            'email' => 'ana.costa@teste.com',
+            'email' => 'ana.costa.delete.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '1',
             'unit_id' => $unit->id,
@@ -164,7 +165,7 @@ class EmployeeTest extends TestCase
         // Deletar funcionário
         $employee->delete();
 
-        $this->assertDatabaseMissing('users', [
+        $this->assertSoftDeleted('users', [
             'id' => $employeeId,
         ]);
     }
@@ -191,7 +192,7 @@ class EmployeeTest extends TestCase
 
         $employee = User::create([
             'name' => 'Carlos Mendes',
-            'email' => 'carlos.mendes@teste.com',
+            'email' => 'carlos.mendes.' . uniqid() . '@teste.com',
             'password' => Hash::make('password123'),
             'role' => '2',
             'unit_id' => $unit->id,

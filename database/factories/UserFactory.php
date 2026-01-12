@@ -27,6 +27,13 @@ class UserFactory extends Factory
     {
         $faker = PtbrFaker::create();
         $ids = Unit::get()->pluck("id")->toArray();
+        
+        // Se não houver units, criar uma
+        if (empty($ids)) {
+            $unit = Unit::factory()->create();
+            $ids = [$unit->id];
+        }
+        
         $last_login = null;
         if ($faker->randomDigit() < 8) {
             $last_login = now();
