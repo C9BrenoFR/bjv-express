@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->double('depth');
             $table->double('weight');
             $table->foreignId('address_id')->constrained()->cascadeOnDelete();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

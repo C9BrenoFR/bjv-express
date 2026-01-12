@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->foreignId('last_to_update')->constrained('users');
             $table->foreignId('unit_id')->constrained();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

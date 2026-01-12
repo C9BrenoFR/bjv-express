@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('title');
             $table->foreignId('address_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
