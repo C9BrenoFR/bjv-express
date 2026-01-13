@@ -45,6 +45,7 @@ class DeliveryFactory extends Factory
         ]);
         return [
             'status' => '0',
+            'mode' => '0',
             'package_id' => $package->id,
             'last_to_update' => $faker->randomElement($users_ids),
             'unit_id' => $faker->randomElement($unit_ids),

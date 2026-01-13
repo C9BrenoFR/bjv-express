@@ -29,25 +29,18 @@ class DeliveryController extends Controller
         $query = Package::with(['address', 'deliver.lastToUpdate', 'deliver.histories'])
             ->leftJoin('deliveries', 'packages.id', '=', 'deliveries.package_id')
             ->leftJoin('users', 'deliveries.last_to_update', '=', 'users.id')
-            ->leftJoin('histories', function ($join) {
-                $join->on('deliveries.id', '=', 'histories.delivery_id')
-                    ->whereRaw('histories.id = (SELECT MAX(h.id) FROM histories h WHERE h.delivery_id = deliveries.id)');
-            })
             ->select(
                 'packages.*',
                 'deliveries.id as code',
                 'deliveries.status as status',
                 'deliveries.unit_id as unit_id',
                 'deliveries.last_to_update as last_to_update',
-                'histories.mode as mode'
+                'deliveries.mode as mode'
             )
             ->where([
                 ['deliveries.unit_id', '=', $unit->id],
-            ])
-            ->where(function ($q) {
-                $q->whereNull('histories.mode')
-                    ->orWhere('histories.mode', '=', Mode::IN_UNIT);
-            });
+                ['deliveries.mode', '=', Mode::IN_UNIT]
+            ]);
         // Apply search filter if provided
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = $request->search;
@@ -109,6 +102,7 @@ class DeliveryController extends Controller
         $delivery->update([
             'last_to_update' => $user->id,
             'status' => Status::ON_WAY,
+            'mode' => Mode::IN_MOVEMENT,
         ]);
 
         // Criar histórico com o novo step
@@ -136,13 +130,13 @@ class DeliveryController extends Controller
                 'deliveries.id as code',
                 'deliveries.status as status',
                 'deliveries.unit_id as unit_id',
+                'deliveries.mode as mode',
                 'histories.step as step',
-                'histories.mode as mode',
                 'units.title as unit_title'
             )
             ->where('status', '!=', Status::DELIVERED)
             ->where('deliveries.last_to_update', $user->id)
-            ->where('histories.mode', Mode::IN_MOVEMENT);
+            ->where('deliveries.mode', Mode::IN_MOVEMENT);
 
         // Apply search filter if provided
         if ($request->has('search') && !empty($request->search)) {
@@ -219,6 +213,7 @@ class DeliveryController extends Controller
             // Entrega final - alterar status para entregue
             $delivery->update([
                 'status' => Status::DELIVERED,
+                'mode' => Mode::IN_UNIT,
             ]);
 
             // Criar histórico de entrega final
@@ -229,9 +224,10 @@ class DeliveryController extends Controller
 
             $message = 'Pacote entregue no destino final com sucesso!';
         } else {
-            // Entrega para unidade - alterar unit_id
+            // Entrega para unidade - alterar unit_id e mode
             $delivery->update([
                 'unit_id' => $request->unit_id,
+                'mode' => Mode::WAITING_FOR_UNIT,
             ]);
 
             // Criar histórico de transferência para unidade

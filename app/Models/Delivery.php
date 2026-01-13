@@ -12,6 +12,7 @@ class Delivery extends Model
     use HasFactory, HasUuids, SoftDeletes;
     protected $fillable = [
         'status',
+        'mode',
         'value',
         'package_id',
         'last_to_update',

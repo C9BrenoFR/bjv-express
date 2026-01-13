@@ -20,7 +20,7 @@ class TrackingController extends Controller
             'delivery_id' => 'required|string'
         ]);
 
-        $delivery = Delivery::with(['package.address', 'unit'])
+        $delivery = Delivery::with(['package.address', 'unit', 'histories'])
             ->where('id', $request->delivery_id)
             ->first();
 
@@ -28,17 +28,28 @@ class TrackingController extends Controller
             return redirect()->route('tracking')->with('error', 'Delivery não encontrado com o ID fornecido.');
         }
 
+        // Obter o histórico mais recente
+        $latestHistory = $delivery->histories?->sortByDesc('created_at')->first();
+
         // Preparar os dados do pacote para o componente package-show
         $packageData = [
             'id' => $delivery->package->id,
-            'code' => $deliver->id ?? 'N/A',
+            'code' => $delivery->id ?? 'N/A',
             'width' => $delivery->package->width,
             'height' => $delivery->package->height,
             'depth' => $delivery->package->depth,
             'weight' => $delivery->package->weight,
             'formatted_address' => $delivery->package->address?->print(\App\Models\Address::TOTAL) ?? 'Endereço não encontrado',
             'status' => $delivery->status,
-            'step' => $delivery->step ?? 'Nenhum passo registrado',
+            'step' => $latestHistory?->step ?? 'Nenhum passo registrado',
+            'histories' => $delivery->histories?->sortByDesc('created_at')->values()->map(function ($history) {
+                return [
+                    'id' => $history->id,
+                    'step' => $history->step,
+                    'mode' => $history->mode,
+                    'created_at' => $history->created_at,
+                ];
+            })->toArray() ?? [],
             'unit_title' => $delivery->unit?->title ?? 'N/A',
             'created_at' => $delivery->package->created_at,
             'updated_at' => $delivery->updated_at ?? $delivery->package->updated_at,

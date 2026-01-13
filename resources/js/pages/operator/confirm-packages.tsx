@@ -17,6 +17,7 @@ interface PackageData {
     code: string;
     formatted_address: string;
     status: string;
+    step: string;
 }
 
 interface PageProps {

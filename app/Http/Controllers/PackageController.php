@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use App\Models\Delivery;
+use App\Models\History;
 use App\Models\Package;
 use App\Models\Unit;
 use Auth;
@@ -105,14 +106,19 @@ class PackageController extends Controller
         ]);
 
         // Criar delivery associado ao pacote
-        Delivery::create([
+        $delivery = Delivery::create([
             'package_id' => $package->id,
             'value' => $validated['value'],
             'status' => Status::IN_SEPARATION, // Status inicial
             'mode' => Mode::WAITING_FOR_UNIT, // Modo inicial
-            'step' => 'Pacote criado e aguardando processamento',
             'unit_id' => null, // Será definido quando for atribuído a uma unidade
             'last_to_update' => auth()->id(),
+        ]);
+
+        // Criar histórico inicial
+        $delivery->histories()->create([
+            'step' => 'Pacote criado e aguardando processamento',
+            'mode' => Mode::WAITING_FOR_UNIT,
         ]);
 
         return redirect()->route('admin.packages')->with('success', 'Pacote criado com sucesso!');
@@ -123,12 +129,15 @@ class PackageController extends Controller
         $user = Auth::user();
 
         // Carregar o pacote com relacionamentos
-        $package->load(['address', 'deliver.unit', 'deliver.lastToUpdate']);
+        $package->load(['address', 'deliver.unit', 'deliver.lastToUpdate', 'deliver.histories']);
 
         // Verificar se o entregador tem permissão para ver este pacote
         if ($package->deliver && $package->deliver->unit_id !== $user->unit_id) {
             return redirect()->route('dashboard.deliver')->with('error', 'Você não tem permissão para visualizar este pacote.');
         }
+
+        // Obter o histórico mais recente
+        $latestHistory = $package->deliver?->histories?->sortByDesc('created_at')->first();
 
         // Formatar informações para exibição
         $packageData = [
@@ -140,7 +149,15 @@ class PackageController extends Controller
             'weight' => $package->weight,
             'formatted_address' => $package->address?->print(Address::TOTAL) ?? 'Endereço não encontrado',
             'status' => $package->deliver?->status,
-            'step' => $package->deliver?->step ?? 'Nenhum passo registrado',
+            'step' => $latestHistory?->step ?? 'Nenhum passo registrado',
+            'histories' => $package->deliver?->histories?->sortByDesc('created_at')->values()->map(function ($history) {
+                return [
+                    'id' => $history->id,
+                    'step' => $history->step,
+                    'mode' => $history->mode,
+                    'created_at' => $history->created_at,
+                ];
+            })->toArray() ?? [],
             'unit_title' => $package->deliver?->unit?->title ?? 'N/A',
             'created_at' => $package->created_at,
             'updated_at' => $package->deliver?->updated_at ?? $package->updated_at,
@@ -235,18 +252,22 @@ class PackageController extends Controller
     public function confirm(Request $request)
     {
         $unit = Auth::user()->unit;
-        $query = Package::with('address')
+        $query = Package::with(['address', 'deliver.histories'])
             ->leftJoin('deliveries', 'packages.id', '=', 'deliveries.package_id')
+            ->leftJoin('histories', function ($join) {
+                $join->on('deliveries.id', '=', 'histories.delivery_id')
+                    ->whereRaw('histories.id = (SELECT MAX(h.id) FROM histories h WHERE h.delivery_id = deliveries.id)');
+            })
             ->select(
                 'packages.*',
                 'deliveries.id as code',
                 'deliveries.status as status',
-                'deliveries.step as step',
+                'histories.step as step',
                 'deliveries.unit_id as unit_id',
             )
             ->where([
                 ['unit_id', '=', $unit->id],
-                ['mode', '=', Mode::WAITING_FOR_UNIT],
+                ['deliveries.mode', '=', Mode::WAITING_FOR_UNIT],
             ]);
 
         // Apply search filter if provided
@@ -302,6 +323,12 @@ class PackageController extends Controller
 
         $delivery->update([
             'last_to_update' => $user->id,
+            'mode' => Mode::IN_UNIT,
+        ]);
+
+        // Criar histórico de recebimento na unidade
+        $delivery->histories()->create([
+            'step' => 'Pacote recebido na unidade ' . $user->unit->title,
             'mode' => Mode::IN_UNIT,
         ]);
 
